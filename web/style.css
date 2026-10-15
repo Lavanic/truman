@@ -1,6 +1,739 @@
+:root {
+  --bg: #f8f5ef;
+  --ink: #17151e;
+  --soft: #625d70;
+  --faint: #b1abbd;
+  --line: rgba(23, 21, 30, 0.09);
+  --panel: rgba(255, 255, 255, 0.62);
+  --panel-edge: rgba(255, 255, 255, 0.9);
+  --raised: #fff;
+  --shadow: 0 1px 2px rgba(23, 21, 30, 0.05), 0 24px 60px -24px rgba(23, 21, 30, 0.22);
+  --brand: #e11d48;
+  --glow: 0.2;
+
+  --laugh-color: #f59e0b;
+  --cheer-color: #0f9f6e;
+  --boo-color: #ef4444;
+  --ooh-color: #8b5cf6;
+
+  --laugh: 0;
+  --cheer: 0;
+  --boo: 0;
+  --ooh: 0;
+  --none: 1;
+
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: "Fraunces", Georgia, serif;
+}
+
+.dark {
+  --bg: #0e0d13;
+  --ink: #f5f3fa;
+  --soft: #a7a1b6;
+  --faint: #5b5668;
+  --line: rgba(255, 255, 255, 0.09);
+  --panel: rgba(255, 255, 255, 0.045);
+  --panel-edge: rgba(255, 255, 255, 0.08);
+  --raised: #2c2937;
+  --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+  --brand: #ff3d68;
+  --glow: 0.14;
+}
+
+.laugh { --color: var(--laugh-color); --on-color: #241500; --value: var(--laugh); }
+.cheer { --color: var(--cheer-color); --on-color: #fff; --value: var(--cheer); }
+.boo { --color: var(--boo-color); --on-color: #fff; --value: var(--boo); }
+.ooh { --color: var(--ooh-color); --on-color: #fff; --value: var(--ooh); }
+
+body[data-reaction="laugh"] { --react: var(--laugh-color); --react-on: #241500; }
+body[data-reaction="cheer"] { --react: var(--cheer-color); --react-on: #fff; }
+body[data-reaction="boo"] { --react: var(--boo-color); --react-on: #fff; }
+body[data-reaction="ooh"] { --react: var(--ooh-color); --react-on: #fff; }
+
+* {
+  box-sizing: border-box;
+}
+
 body {
+  height: 100vh;
+  height: 100dvh;
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #111;
-  color: #eee;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 3vh;
+  padding: 3vh 3vw 4vh;
+  overflow: hidden;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  transition: background-color 0.4s, color 0.4s;
+}
+
+/* stage lights: each corner glows with its reaction's score */
+.lights {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.light {
+  position: absolute;
+  width: 80vmax;
+  height: 80vmax;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--color), transparent);
+  opacity: calc(var(--glow) + var(--value) * 0.55);
+  transition: opacity 0.6s ease;
+}
+
+.light.laugh { top: -45vmax; left: -30vmax; }
+.light.cheer { top: -45vmax; right: -30vmax; }
+.light.boo { bottom: -45vmax; left: -30vmax; }
+.light.ooh { bottom: -45vmax; right: -30vmax; }
+
+body[data-reaction="laugh"] .light.laugh,
+body[data-reaction="cheer"] .light.cheer,
+body[data-reaction="boo"] .light.boo,
+body[data-reaction="ooh"] .light.ooh {
+  opacity: 0.85;
+  transition-duration: 0.15s;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 1.4vw;
+  font-size: clamp(13px, 0.95vw, 19px);
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  margin: 0 0.3em 0 0;
+  font-family: var(--display);
+  font-size: clamp(22px, 2.1vw, 44px);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.star {
+  width: 1.05em;
+  height: 1.05em;
+  fill: var(--brand);
+}
+
+.listening .star {
+  animation: spin 14s linear infinite;
+}
+
+#status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.55em 1em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--soft);
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+}
+
+#status::before {
+  content: "";
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: var(--faint);
+}
+
+.listening #status::before {
+  background: var(--cheer-color);
+  animation: breathe 2s ease-in-out infinite;
+}
+
+.offline #status::before {
+  background: var(--laugh-color);
+  animation: blink 1s steps(2) infinite;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-left: auto;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6em 1.1em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  border-color: color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.switch {
+  display: flex;
+  padding: 0.25em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.switch button {
+  border-color: transparent;
+  color: var(--soft);
+  background: none;
+  backdrop-filter: none;
+}
+
+.switch button.on {
+  color: var(--ink);
+  background: var(--raised);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+}
+
+#mute.on {
+  border-color: color-mix(in srgb, var(--boo-color) 40%, transparent);
+  color: var(--boo-color);
+  background: color-mix(in srgb, var(--boo-color) 12%, transparent);
+}
+
+#theme {
+  padding: 0.6em;
+}
+
+.icon {
+  width: 1.2em;
+  height: 1.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#mute .silent,
+#mute.on .sound,
+#theme .sun,
+.dark #theme .moon {
+  display: none;
+}
+
+#mute.on .silent,
+.dark #theme .sun {
+  display: block;
+}
+
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 33vw);
+  gap: 4vw;
+  min-height: 0;
+  transition: opacity 0.4s;
+}
+
+.offline main {
+  opacity: 0.5;
+}
+
+#transcript {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+  padding: 0 0 9vh 0.4vw;
+}
+
+#transcript::before {
+  content: "";
+  position: absolute;
+  inset: auto -4vw -8vh -8vw;
+  z-index: -1;
+  height: 80%;
+  background: radial-gradient(50% 50% at 35% 70%, color-mix(in srgb, var(--brand) 10%, transparent), transparent);
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+
+.speaking #transcript::before {
+  opacity: 1;
+}
+
+#history {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8vh;
+  margin: 0 0 4vh;
+  padding: 0;
+  list-style: none;
+}
+
+#history li {
+  font-size: clamp(16px, min(1.8vw, 3.2vh), 40px);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  opacity: 0.62;
+  transition: opacity 0.5s;
+  animation: settle 0.5s ease;
+}
+
+#history li:nth-last-child(2) { opacity: 0.4; }
+#history li:nth-last-child(3) { opacity: 0.22; }
+
+#current {
+  min-height: 2.3em;
+  margin: 0;
+  font-size: clamp(30px, min(4vw, 7.2vh), 96px);
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+#current span,
+#history span {
+  display: inline-block;
+  margin-right: 0.16em;
+  padding: 0 0.09em;
+  border-radius: 0.14em;
+}
+
+#current span {
+  animation: word-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+#current span:first-child,
+#history span:first-child {
+  text-transform: capitalize;
+}
+
+.mark {
+  color: var(--on-color);
+  background: var(--color);
+}
+
+#current .mark {
+  animation: mark-in 0.55s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+#current::after {
+  content: "";
+  display: inline-block;
+  width: 0.07em;
+  height: 0.9em;
+  vertical-align: -0.1em;
+  border-radius: 1em;
+  background: var(--brand);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.speaking #current::after {
+  opacity: 1;
+  animation: blink 1s ease-in-out infinite;
+}
+
+#history:empty + #current:empty::before {
+  content: "Listening";
+  color: var(--faint);
+}
+
+.offline #history:empty + #current:empty::before {
+  content: "Waiting for Truman";
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0.3em 0.65em;
+  border-radius: 999px;
+  vertical-align: 0.2em;
+  font-size: 0.5em;
+  font-style: normal;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-color);
+  background: var(--color);
+}
+
+#crowd-mind {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 3.2vh 2vw 2.6vh;
+  border: 1px solid var(--panel-edge);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
+h2,
+.latency {
+  margin: 0;
+  font-size: clamp(12px, 0.95vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+h2 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3vh;
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+}
+
+.legend::before {
+  content: "";
+  width: 1.8em;
+  border-top: 2px dashed currentColor;
+}
+
+.bars {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2vw;
+}
+
+.bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4vh;
+  min-height: 0;
+}
+
+.value {
+  font-size: clamp(18px, min(2.4vw, 4.2vh), 54px);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+  transition: color 0.3s;
+}
+
+.value::after {
+  content: "%";
+  margin-left: 0.06em;
+  font-size: 0.5em;
+  font-weight: 600;
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  max-width: 6.5vw;
+  overflow: hidden;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--color) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color) 16%, transparent);
+  transition: box-shadow 0.3s;
+}
+
+.track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to top, transparent 0 calc(25% - 1px), color-mix(in srgb, var(--color) 20%, transparent) calc(25% - 1px) 25%);
+}
+
+/* how sure the model is that nobody should react: a bar above it is winning */
+.track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--none) * 100%);
+  z-index: 1;
+  border-top: 2px dashed color-mix(in srgb, var(--ink) 50%, transparent);
+  transition: bottom 0.3s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(max(var(--value), 0.025) * 100%);
+  border-radius: inherit;
+  background: linear-gradient(to top, var(--color), color-mix(in srgb, var(--color) 72%, white));
+  opacity: calc(0.4 + var(--value) * 0.6);
+  transition: height 0.3s cubic-bezier(0.3, 0.8, 0.3, 1), opacity 0.3s;
+}
+
+.fill::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 18%;
+  right: 18%;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.label {
+  font-size: clamp(13px, min(1.3vw, 2.4vh), 26px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+  transition: color 0.3s;
+}
+
+.label::before {
+  content: "";
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.45em;
+  border-radius: 50%;
+  background: var(--color);
+}
+
+.bar.hot .value,
+.bar.hot .label {
+  color: var(--ink);
+}
+
+.bar.hot .track {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color) 40%, transparent), 0 0 40px -6px var(--color);
+}
+
+body[data-reaction="laugh"] .bar.laugh .track,
+body[data-reaction="cheer"] .bar.cheer .track,
+body[data-reaction="boo"] .bar.boo .track,
+body[data-reaction="ooh"] .bar.ooh .track {
+  animation: fired 1s ease-out;
+}
+
+.latency {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 3vh;
+  padding-top: 2.4vh;
+  border-top: 1px solid var(--line);
+}
+
+#latency {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: clamp(24px, min(2.8vw, 5vh), 60px);
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+body[data-reaction] #latency {
+  animation: pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+#reaction {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 3vh;
+  pointer-events: none;
+  opacity: 0;
+}
+
+body[data-reaction] #reaction {
+  animation: sign 2s ease forwards;
+}
+
+.sign {
+  display: flex;
+  align-items: center;
+  gap: 0.22em;
+  padding: 0.1em 0.42em 0.16em;
+  border-radius: 0.2em;
+  font-family: var(--display);
+  font-size: clamp(72px, min(12vw, 22vh), 280px);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--react-on);
+  background: var(--react);
+  box-shadow: 0 0 0 0.06em color-mix(in srgb, var(--react) 25%, transparent), 0 0.35em 1.1em -0.25em color-mix(in srgb, var(--react) 75%, transparent);
+}
+
+.size {
+  padding: 0.4em 0.7em;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 0.2em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  background: color-mix(in srgb, var(--react-on) 18%, transparent);
+}
+
+#reaction .time {
+  padding: 0.45em 1.1em;
+  border-radius: 999px;
+  font-size: clamp(18px, min(2vw, 3.6vh), 42px);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--bg);
+  background: var(--ink);
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.45);
+}
+
+#reaction .time::before {
+  content: "reacted in ";
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.size:empty,
+#reaction .time:empty {
+  display: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--react) 28%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+body[data-reaction]::after {
+  animation: wash 2s ease forwards;
+}
+
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(0.3em); filter: blur(0.06em); }
+}
+
+@keyframes mark-in {
+  from { color: var(--ink); background-color: transparent; transform: scale(0.9); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes settle {
+  from { opacity: 0; transform: translateY(0.5em); }
+}
+
+@keyframes sign {
+  0% { opacity: 0; transform: scale(0.85); }
+  6% { opacity: 1; }
+  9% { opacity: 0.4; }
+  12% { opacity: 1; transform: scale(1.04); }
+  20% { transform: scale(1); }
+  85% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.98); }
+}
+
+@keyframes wash {
+  10% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fired {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color) 70%, transparent); }
+  to { box-shadow: 0 0 0 28px transparent; }
+}
+
+@keyframes pop {
+  40% { transform: scale(1.15); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes breathe {
+  50% { box-shadow: 0 0 0 0.35em color-mix(in srgb, var(--cheer-color) 25%, transparent); }
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+@media (max-width: 900px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    gap: 20px;
+    padding: 16px;
+    overflow: auto;
+  }
+
+  header {
+    flex-wrap: wrap;
+    font-size: 14px;
+  }
+
+  .controls {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  #transcript {
+    min-height: 40vh;
+  }
+
+  #crowd-mind {
+    height: 60vh;
+    padding: 20px;
+  }
+
+  .track {
+    max-width: 64px;
+  }
 }
