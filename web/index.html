@@ -119,6 +119,20 @@
           <strong>Drop a file here</strong>
           <span id="drop-hint">or click to browse</span>
         </label>
+
+        <article id="file-card" hidden>
+          <div class="file-head">
+            <span class="tile"></span>
+            <div class="file-info">
+              <strong id="file-name"></strong>
+              <span id="file-meta"></span>
+            </div>
+            <button id="remove-file" title="Remove file" aria-label="Remove file">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
+          <div id="preview"></div>
+        </article>
       </div>
     </div>
   </main>
@@ -128,6 +142,18 @@
     <span class="time"></span>
   </section>
 
+  <template id="player-template">
+    <div class="player">
+      <button class="play" aria-label="Play or pause">
+        <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+        <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+      </button>
+      <div class="wave"></div>
+      <span class="clock">0:00</span>
+    </div>
+  </template>
+
   <script src="app.js"></script>
+  <script src="upload.js"></script>
 </body>
 </html>

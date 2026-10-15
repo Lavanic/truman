@@ -852,6 +852,183 @@ body[data-reaction] #latency {
   color: var(--boo-color);
 }
 
+#dropzone,
+#file-card {
+  grid-area: 1 / 1;
+  min-height: 0;
+}
+
+#file-card {
+  display: flex;
+  flex-direction: column;
+  padding: 2.8vh 1.8vw;
+  border: 1px solid var(--panel-edge);
+  border-radius: 32px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(1.4);
+  animation: card-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s;
+}
+
+.dragging #file-card {
+  border-color: #4f6bed;
+  transform: scale(1.02);
+}
+
+.file-head {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  font-size: clamp(14px, min(1.05vw, 2vh), 22px);
+}
+
+.file-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+#file-name {
+  overflow: hidden;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#file-meta {
+  font-size: 0.85em;
+  color: var(--soft);
+}
+
+#remove-file {
+  padding: 0.6em;
+}
+
+#preview {
+  flex: 1;
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  place-items: center;
+  min-height: 0;
+  margin-top: 2.6vh;
+}
+
+#preview video {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.55);
+}
+
+.script {
+  place-self: stretch;
+  margin: 0;
+  padding: 0 0.6em 0 2.8em;
+  overflow-y: auto;
+  list-style: none;
+  counter-reset: line;
+  font-size: clamp(14px, min(1.15vw, 2.1vh), 24px);
+  line-height: 1.45;
+}
+
+.script li {
+  position: relative;
+  padding: 0.6em 0;
+  border-bottom: 1px solid var(--line);
+  counter-increment: line;
+  animation: settle 0.5s calc(var(--i) * 40ms) backwards;
+}
+
+.script li::before {
+  content: counter(line);
+  position: absolute;
+  top: 0.85em;
+  left: -2.6em;
+  width: 1.9em;
+  text-align: right;
+  font-size: 0.75em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint);
+}
+
+.player {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "wave wave" "play clock";
+  align-items: center;
+  gap: 3vh 1em;
+  width: 100%;
+  font-size: clamp(14px, min(1.05vw, 2vh), 22px);
+}
+
+.play {
+  grid-area: play;
+  justify-content: center;
+  width: 3.6em;
+  height: 3.6em;
+  padding: 0;
+  border: 0;
+  color: #fff;
+  background: linear-gradient(135deg, #0891b2, #4f6bed);
+  box-shadow: 0 14px 30px -12px #0891b2;
+}
+
+.play .icon {
+  width: 1.4em;
+  height: 1.4em;
+}
+
+.play .icon-play {
+  fill: currentColor;
+  stroke: none;
+}
+
+.player .icon-pause,
+.player.playing .icon-play {
+  display: none;
+}
+
+.player.playing .icon-pause {
+  display: block;
+}
+
+.wave {
+  grid-area: wave;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: min(28vh, 240px);
+  cursor: pointer;
+}
+
+/* each bar shifts the hue a little, from teal through blue to magenta */
+.wave i {
+  flex: 1;
+  height: calc(var(--h) * 100%);
+  min-height: 4px;
+  border-radius: 99px;
+  background: hsl(calc(190 + var(--i) * 1.6) 80% 50%);
+  opacity: 0.35;
+  animation: bar-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--i) * 6ms) backwards;
+  transition: opacity 0.25s;
+}
+
+.wave i.played {
+  opacity: 1;
+}
+
+.clock {
+  grid-area: clock;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+}
+
 body[data-view="upload"] #reaction,
 body[data-view="upload"]::after {
   display: none;
@@ -980,6 +1157,14 @@ body[data-reaction]::after {
 
 @keyframes float {
   50% { transform: translateY(-8px); }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(3vh) scale(0.97); }
+}
+
+@keyframes bar-in {
+  from { opacity: 0; transform: scaleY(0); }
 }
 
 @keyframes shake {
