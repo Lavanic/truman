@@ -11,6 +11,7 @@ const popup = document.querySelector("#reaction");
 const latency = document.querySelector("#latency");
 const muteButton = document.querySelector("#mute");
 const modeButtons = document.querySelectorAll("[data-mode]");
+const tabs = document.querySelectorAll(".tab");
 
 let socket;
 let connected = false;
@@ -183,6 +184,18 @@ function setMuted(muted) {
   send({ type: "mute", muted });
 }
 
+function showView(name) {
+  if (document.body.dataset.view === name) return;
+  document.documentElement.dataset.direction = name === "upload" ? "forward" : "back";
+  const change = () => {
+    document.body.dataset.view = name;
+    tabs.forEach((tab) => tab.setAttribute("aria-current", tab.dataset.view === name ? "page" : "false"));
+  };
+  // browsers without view transitions just switch instantly
+  if (document.startViewTransition) document.startViewTransition(change);
+  else change();
+}
+
 function toggleTheme() {
   const dark = document.documentElement.classList.toggle("dark");
   localStorage.setItem("theme", dark ? "dark" : "light");
@@ -191,6 +204,7 @@ function toggleTheme() {
 modeButtons.forEach((button) => (button.onclick = () => setMode(button.dataset.mode)));
 muteButton.onclick = () => setMuted(!muted);
 document.querySelector("#theme").onclick = toggleTheme;
+tabs.forEach((tab) => (tab.onclick = () => showView(tab.dataset.view)));
 document.addEventListener("keydown", (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === "m") setMuted(!muted);

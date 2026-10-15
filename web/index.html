@@ -10,13 +10,25 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700..900&family=Inter:wght@400..800&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-view="live">
   <div class="lights" aria-hidden="true">
     <div class="light laugh"></div>
     <div class="light cheer"></div>
     <div class="light boo"></div>
     <div class="light ooh"></div>
   </div>
+
+  <nav class="sidebar" aria-label="Views">
+    <span class="indicator" aria-hidden="true"></span>
+    <button class="tab" data-view="live" aria-current="page">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19.1 4.9a10 10 0 0 1 0 14.2M4.9 19.1a10 10 0 0 1 0-14.2"/></svg>
+      <span>Live</span>
+    </button>
+    <button class="tab" data-view="upload" aria-current="false">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <span>Upload</span>
+    </button>
+  </nav>
 
   <header>
     <h1>
@@ -45,43 +57,76 @@
   </header>
 
   <main>
-    <section id="transcript">
-      <ol id="history"></ol>
-      <p id="current"></p>
-    </section>
+    <div id="live" class="view">
+      <section id="transcript">
+        <ol id="history"></ol>
+        <p id="current"></p>
+      </section>
 
-    <section id="crowd-mind">
-      <h2>Crowd mind <span class="legend">Quiet</span></h2>
-      <div class="bars">
-        <div class="bar laugh">
-          <span class="value">0</span>
-          <div class="track"><div class="fill"></div></div>
-          <span class="label">Laugh</span>
+      <section id="crowd-mind">
+        <h2>Crowd mind <span class="legend">Quiet</span></h2>
+        <div class="bars">
+          <div class="bar laugh">
+            <span class="value">0</span>
+            <div class="track"><div class="fill"></div></div>
+            <span class="label">Laugh</span>
+          </div>
+          <div class="bar cheer">
+            <span class="value">0</span>
+            <div class="track"><div class="fill"></div></div>
+            <span class="label">Cheer</span>
+          </div>
+          <div class="bar boo">
+            <span class="value">0</span>
+            <div class="track"><div class="fill"></div></div>
+            <span class="label">Boo</span>
+          </div>
+          <div class="bar ooh">
+            <span class="value">0</span>
+            <div class="track"><div class="fill"></div></div>
+            <span class="label">Ooh</span>
+          </div>
         </div>
-        <div class="bar cheer">
-          <span class="value">0</span>
-          <div class="track"><div class="fill"></div></div>
-          <span class="label">Cheer</span>
-        </div>
-        <div class="bar boo">
-          <span class="value">0</span>
-          <div class="track"><div class="fill"></div></div>
-          <span class="label">Boo</span>
-        </div>
-        <div class="bar ooh">
-          <span class="value">0</span>
-          <div class="track"><div class="fill"></div></div>
-          <span class="label">Ooh</span>
-        </div>
+        <p class="latency">Reaction time <strong id="latency">--</strong></p>
+      </section>
+    </div>
+
+    <div id="upload" class="view">
+      <div class="intro">
+        <p class="eyebrow">Upload</p>
+        <h2 class="title">Replay a recording</h2>
+        <p class="lead">Drop a rehearsal, a video or a transcript, and Truman reacts to it as if it were live.</p>
+        <ul class="kinds">
+          <li class="kind transcript">
+            <span class="tile"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 10h14M5 14h9M5 18h6"/></svg></span>
+            <span><strong>Transcript</strong>.txt .srt .vtt</span>
+          </li>
+          <li class="kind audio">
+            <span class="tile"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></span>
+            <span><strong>Audio</strong>.wav .mp3 .m4a</span>
+          </li>
+          <li class="kind video">
+            <span class="tile"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></span>
+            <span><strong>Video</strong>.mp4 .mov .webm</span>
+          </li>
+        </ul>
       </div>
-      <p class="latency">Reaction time <strong id="latency">--</strong></p>
-    </section>
 
-    <section id="reaction" aria-live="polite">
-      <div class="sign"><span class="word"></span><span class="size"></span></div>
-      <span class="time"></span>
-    </section>
+      <div class="drop-area">
+        <label id="dropzone">
+          <input id="file-input" type="file" accept=".txt,.srt,.vtt,audio/*,video/*">
+          <span class="drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
+          <strong>Drop a file here</strong>
+          <span id="drop-hint">or click to browse</span>
+        </label>
+      </div>
+    </div>
   </main>
+
+  <section id="reaction" aria-live="polite">
+    <div class="sign"><span class="word"></span><span class="size"></span></div>
+    <span class="time"></span>
+  </section>
 
   <script src="app.js"></script>
 </body>
