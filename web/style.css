@@ -351,20 +351,88 @@ body[data-view="live"] #upload {
   padding: 0 0 9vh 0.4vw;
 }
 
-#transcript::before {
-  content: "";
-  position: absolute;
-  inset: auto -4vw -8vh -8vw;
-  z-index: -1;
-  height: 80%;
-  background: radial-gradient(50% 50% at 35% 70%, color-mix(in srgb, var(--brand) 10%, transparent), transparent);
-  opacity: 0;
-  transition: opacity 0.6s;
-  pointer-events: none;
+#voices {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 0;
+  margin-bottom: 2vh;
 }
 
-.speaking #transcript::before {
-  opacity: 1;
+.voice {
+  --size: min(34vh, 19vw);
+  --level: 0;
+  --angle: 0deg;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+  margin: 0;
+}
+
+/* layered blurry circles; --level (0 to 1) grows with speech and --angle keeps them turning */
+.orb {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  opacity: calc(0.65 + var(--level) * 0.35);
+  filter: saturate(calc(0.7 + var(--level) * 0.6));
+  transform: scale(calc(0.74 + var(--level) * 0.34));
+}
+
+.orb i {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.halo {
+  inset: 0;
+  background: radial-gradient(closest-side, var(--halo), color-mix(in srgb, var(--halo) 55%, transparent) 62%, transparent);
+  filter: blur(calc(var(--size) * 0.05));
+  transform: rotate(calc(var(--angle) * 0.3)) scale(calc(1 + var(--level) * 0.06), calc(1 - var(--level) * 0.04));
+}
+
+.ring {
+  inset: 16%;
+  background: radial-gradient(closest-side, var(--ring), color-mix(in srgb, var(--ring) 45%, transparent) 70%, transparent);
+  filter: blur(calc(var(--size) * 0.03));
+  transform: rotate(calc(var(--angle) * -0.6)) translateX(7%);
+}
+
+.core {
+  inset: 31%;
+  background: radial-gradient(circle at 40% 40%, color-mix(in srgb, var(--core) 90%, white), var(--core) 55%, color-mix(in srgb, var(--core) 50%, transparent) 82%, transparent);
+  filter: blur(calc(var(--size) * 0.012));
+  transform: rotate(var(--angle)) translateX(calc(20% + var(--level) * 26%));
+}
+
+.spark {
+  inset: 42%;
+  background: radial-gradient(closest-side, var(--spark), transparent);
+  opacity: calc(0.25 + var(--level) * 0.75);
+  transform: rotate(calc(var(--angle) * 1.7)) translateX(calc(130% + var(--level) * 60%));
+}
+
+.voice-name {
+  font-size: clamp(12px, 0.95vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  transition: color 0.3s;
+}
+
+.voice.speaking .voice-name {
+  color: var(--ink);
+}
+
+.voice-name:empty::after {
+  content: "Listening";
+}
+
+.voice.speaking .voice-name:empty::after {
+  content: "Speaking";
 }
 
 #history {
@@ -1277,6 +1345,10 @@ body[data-reaction]::after {
 
   #transcript {
     min-height: 40vh;
+  }
+
+  .voice {
+    --size: min(26vh, 38vw);
   }
 
   #crowd-mind {

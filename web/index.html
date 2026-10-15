@@ -52,6 +52,7 @@
   <main>
     <div id="live" class="view">
       <section id="transcript">
+        <div id="voices"></div>
         <ol id="history"></ol>
         <p id="current"></p>
       </section>
@@ -147,6 +148,18 @@
     <span class="time"></span>
   </section>
 
+  <template id="voice-template">
+    <figure class="voice">
+      <div class="orb" aria-hidden="true">
+        <i class="halo"></i>
+        <i class="ring"></i>
+        <i class="core"></i>
+        <i class="spark"></i>
+      </div>
+      <figcaption class="voice-name"></figcaption>
+    </figure>
+  </template>
+
   <template id="player-template">
     <div class="player">
       <button class="play" aria-label="Play or pause">
@@ -158,6 +171,7 @@
     </div>
   </template>
 
+  <script src="orbs.js"></script>
   <script src="app.js"></script>
   <script src="upload.js"></script>
 </body>

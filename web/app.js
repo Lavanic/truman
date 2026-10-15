@@ -62,6 +62,7 @@ function showTranscript(event) {
     finishLine();
     return;
   }
+  pulseVoice(event.speaker || "");
   document.body.classList.add("speaking");
   clearTimeout(speakingTimer);
   speakingTimer = setTimeout(() => document.body.classList.remove("speaking"), 700);
