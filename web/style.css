@@ -9,7 +9,6 @@
   --raised: #fff;
   --shadow: 0 1px 2px rgba(23, 21, 30, 0.05), 0 24px 60px -24px rgba(23, 21, 30, 0.22);
   --brand: #e11d48;
-  --glow: 0.2;
 
   --laugh-color: #f59e0b;
   --cheer-color: #0f9f6e;
@@ -38,7 +37,6 @@
   --raised: #2c2937;
   --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
   --brand: #ff3d68;
-  --glow: 0.14;
   --none-color: #94a3b8;
 }
 
@@ -75,38 +73,6 @@ body {
   color: var(--ink);
   background: var(--bg);
   transition: background-color 0.4s, color 0.4s;
-}
-
-/* stage lights: each corner glows with its reaction's score */
-.lights {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.light {
-  position: absolute;
-  width: 80vmax;
-  height: 80vmax;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--color), transparent);
-  opacity: calc(var(--glow) + var(--value) * 0.55);
-  transition: opacity 0.6s ease;
-}
-
-.light.laugh { top: -45vmax; left: -30vmax; }
-.light.cheer { top: -45vmax; right: -30vmax; }
-.light.boo { bottom: -45vmax; left: -30vmax; }
-.light.ooh { bottom: -45vmax; right: -30vmax; }
-
-body[data-reaction="laugh"] .light.laugh,
-body[data-reaction="cheer"] .light.cheer,
-body[data-reaction="boo"] .light.boo,
-body[data-reaction="ooh"] .light.ooh {
-  opacity: 0.85;
-  transition-duration: 0.15s;
 }
 
 .sidebar {
