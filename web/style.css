@@ -1029,6 +1029,58 @@ body[data-reaction] #latency {
   color: var(--soft);
 }
 
+.file-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  margin-top: 2.6vh;
+  font-size: clamp(14px, min(1.05vw, 2vh), 22px);
+}
+
+#upload-note {
+  color: var(--soft);
+}
+
+#upload-note.error {
+  font-weight: 600;
+  color: var(--boo-color);
+}
+
+.primary {
+  padding: 0.85em 1.5em;
+  border: 0;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(110deg, var(--brand), #c026d3, var(--brand));
+  background-size: 200% 100%;
+  box-shadow: 0 14px 30px -12px var(--brand);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s, background-position 0.6s;
+}
+
+.primary:hover {
+  background-position: 100% 0;
+  box-shadow: 0 18px 36px -12px var(--brand);
+  transform: translateY(-2px);
+}
+
+.primary .icon {
+  transition: transform 0.3s;
+}
+
+.primary:hover .icon {
+  transform: translateX(4px);
+}
+
+.primary:disabled {
+  cursor: progress;
+  transform: none;
+}
+
+.sending .primary {
+  animation: shimmer 1.2s linear infinite;
+}
+
 body[data-view="upload"] #reaction,
 body[data-view="upload"]::after {
   display: none;
@@ -1165,6 +1217,10 @@ body[data-reaction]::after {
 
 @keyframes bar-in {
   from { opacity: 0; transform: scaleY(0); }
+}
+
+@keyframes shimmer {
+  to { background-position: 200% 0; }
 }
 
 @keyframes shake {

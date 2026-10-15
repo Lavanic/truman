@@ -1,4 +1,5 @@
 const BARS = 72; // bars in the audio waveform
+const UPLOAD_URL = "/upload"; // the backend still needs this route
 
 const dropArea = document.querySelector(".drop-area");
 const dropzone = document.querySelector("#dropzone");
@@ -6,6 +7,8 @@ const dropHint = document.querySelector("#drop-hint");
 const fileInput = document.querySelector("#file-input");
 const fileCard = document.querySelector("#file-card");
 const preview = document.querySelector("#preview");
+const sendButton = document.querySelector("#send-file");
+const note = document.querySelector("#upload-note");
 
 let chosenFile = null;
 let fileUrl = null;
@@ -129,6 +132,30 @@ function previewVideo(file) {
   preview.replaceChildren(video);
 }
 
+async function sendFile() {
+  const form = new FormData();
+  form.append("file", chosenFile);
+  fileCard.classList.add("sending");
+  sendButton.disabled = true;
+  showNote("Sending to Truman...");
+  try {
+    const response = await fetch(UPLOAD_URL, { method: "POST", body: form });
+    if (response.status === 404 || response.status === 405) throw new Error("This backend can't take uploads yet");
+    if (!response.ok) throw new Error(`Upload failed (${response.status})`);
+    showNote("");
+    showView("live"); // Truman replays the file there, like a live talk
+  } catch (error) {
+    showNote(error instanceof TypeError ? "Can't reach Truman" : error.message, true);
+  }
+  fileCard.classList.remove("sending");
+  sendButton.disabled = false;
+}
+
+function showNote(text, isError = false) {
+  note.textContent = text;
+  note.classList.toggle("error", isError);
+}
+
 function clearFile() {
   if (player) player.pause();
   if (fileUrl) URL.revokeObjectURL(fileUrl);
@@ -141,6 +168,7 @@ function clearFile() {
   dropzone.hidden = false;
   dropzone.classList.remove("rejected");
   dropHint.textContent = "or click to browse";
+  showNote("");
 }
 
 function rejectFile() {
@@ -168,6 +196,7 @@ fileInput.onchange = () => {
   if (fileInput.files[0]) chooseFile(fileInput.files[0]);
 };
 document.querySelector("#remove-file").onclick = clearFile;
+sendButton.onclick = sendFile;
 
 dropArea.addEventListener("dragover", (e) => {
   e.preventDefault();
