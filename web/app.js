@@ -114,6 +114,9 @@ function showScores(scores) {
     bar.classList.toggle("hot", name === top && scores[name] > scores.none);
   }
   document.body.style.setProperty("--none", scores.none);
+  const quiet = document.querySelector(".bar.none");
+  quiet.querySelector(".value").textContent = Math.round(scores.none * 100);
+  quiet.classList.toggle("hot", scores.none >= scores[top]);
   markWords(scores);
   lastScores = scores;
 }
